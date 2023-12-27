@@ -61,14 +61,14 @@ If you see a 502 error is because the backend is still starting, wait some secon
 You can run the tests in a containerized envionment by running the following commands:
 
 ```sh
-docker network create backend_network && \
+docker network create testing_network && \
 docker build -t "testbuild" . && \
-docker run --name=database -d -e POSTGRES_USER=docker-dev -e POSTGRES_PASSWORD=docker-dev-pass -e POSTGRES_DB=docker-pg -p 5432:5432 --network=backend_network postgres:latest && \
-docker run --name=redis -d --network=backend_network redis:alpine && \
-docker run --name=test -e DATABASE_URL=postgres://docker-dev:docker-dev-pass@database:5432/docker-pg -e REDIS_HOST=redis -e REDIS_PORT=6379 -it --rm --network=backend_network testbuild npm run test && \
+docker run --name=database -d -e POSTGRES_USER=docker-dev -e POSTGRES_PASSWORD=docker-dev-pass -e POSTGRES_DB=docker-pg -p 5432:5432 --network=testing_network postgres:latest && \
+docker run --name=redis -d --network=testing_network redis:alpine && \
+docker run --name=test -e DATABASE_URL=postgres://docker-dev:docker-dev-pass@database:5432/docker-pg -e REDIS_HOST=redis -e REDIS_PORT=6379 -it --rm --network=testing_network testbuild npm run test && \
 docker rm -f database &&  \
 docker rm -f redis &&  \
-docker network rm backend_network
+docker network rm testing_network
 ```
 
 Which should run all the tests inside the /tests folder
