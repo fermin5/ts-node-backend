@@ -8,8 +8,6 @@ RUN npm install\
 
 COPY . .
 
-RUN tsc
-
 EXPOSE 3000
 
 CMD ["npm", "start"]
