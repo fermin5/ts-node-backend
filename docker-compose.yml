@@ -1,0 +1,64 @@
+version: '3.8'
+
+networks:
+  backend_network:
+    driver: bridge
+
+services:
+  ts-node-backend:
+    build: .
+    expose:
+      - "3000"
+    environment:
+      DATABASE_URL: postgres://docker-dev:docker-dev-pass@db:5432/docker-pg
+      PORT: 3000
+      REDIS_PORT: 6379
+      REDIS_HOST: redis
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/server
+      - /server/node_modules
+    command: npm start
+    depends_on:
+      - db
+      - redis
+    networks:
+      - backend_network
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: docker-dev
+      POSTGRES_PASSWORD: docker-dev-pass
+      POSTGRES_DB: docker-pg
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend_network
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend_network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx:ro
+    depends_on:
+      - ts-node-backend
+    networks:
+      - backend_network
+
+volumes:
+  postgres_data:
+  redis_data:
